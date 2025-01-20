@@ -11,7 +11,7 @@
         <nav>
             <ul class="d-flex justify-content-center gap-5">
                 <!-- Link alla home page del sito / Link to the site's home page -->
-                <li><a href="<?php echo site_url('/'); ?>">Home</a></li> 
+                <li><i class="fa-brands fa-wordpress"></i><a href="<?php echo site_url('/'); ?>">Home</a></li> 
 
                 <!-- Link alla pagina "free now" con slug "/home/" / Link to the "free now" page with slug "/home/" -->
                 <li><a href="<?php echo site_url('/home/'); ?>">free now</a></li> 

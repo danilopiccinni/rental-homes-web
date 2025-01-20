@@ -1,4 +1,6 @@
 <?php
+
+// Bootstrap
 function add_bootstrap_to_theme() {
     // Bootstrap CSS
     wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css');
@@ -7,6 +9,18 @@ function add_bootstrap_to_theme() {
     wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js', [], null, true);
 }
 add_action('wp_enqueue_scripts', 'add_bootstrap_to_theme');
+
+// Font Awesome
+function enqueue_font_awesome() {
+    // Font Awesome CSS
+    wp_enqueue_style(
+        'font-awesome',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+        [],
+        '6.5.1'
+    );
+}
+add_action('wp_enqueue_scripts', 'enqueue_font_awesome');
 
 // Funzione per la configurazione iniziale del tema
 // Function to set up the theme
