@@ -9,7 +9,7 @@
 <body <?php body_class(); ?>> <!-- Aggiunge classi specifiche al tag <body> in base al contesto della pagina / Adds specific classes to the <body> tag based on the page context -->
     <header>
         <nav>
-            <ul>
+            <ul class="d-flex justify-content-center gap-5">
                 <!-- Link alla home page del sito / Link to the site's home page -->
                 <li><a href="<?php echo site_url('/'); ?>">Home</a></li> 
 
