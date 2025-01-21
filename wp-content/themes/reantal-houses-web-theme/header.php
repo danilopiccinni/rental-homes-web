@@ -37,7 +37,7 @@
                                     Admin
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Login</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo wp_login_url(); ?>"">Login</a></li>
                                     <li><a class="dropdown-item" href="#">Support</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="#">Copyright</a></li>
