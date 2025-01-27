@@ -9,7 +9,6 @@
 /wp-content/index.php
 /wp-content/boost-cache/
 /wp-content/languages
-/wp-content/cache/
 /wp-content/plugins/index.php
 /wp-content/themes/index.php
 /wp-includes/
@@ -18,6 +17,18 @@
 /readme.html
 /wp-*.php
 /xmlrpc.php
+
+# WP Super Cache configuration file
+wp-content/wp-cache-config.php
+
+# WP Super Cache cache folder
+wp-content/cache/
+
+# WP Super Cache temporary folder (used for creating cached pages)
+wp-content/wpsc-tmp/
+
+# WP Super Cache logs (optional, in caso tu abbia configurato logging)
+wp-content/debug.log
 
 # Configuration
 wp-config.php
