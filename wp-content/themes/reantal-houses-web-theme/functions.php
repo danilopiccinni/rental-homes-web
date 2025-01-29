@@ -36,7 +36,7 @@ function rental_homes_setup() {
         'public' => true, // Rende il post type pubblico / Makes the post type public
         'supports' => ['title', 'editor', 'thumbnail'], // Elementi supportati / Supported elements
         'has_archive' => true, // Abilita un archivio per i post / Enables an archive for posts
-        'rewrite' => ['slug' => 'home'], // URL personalizzato per i post / Custom URL slug for posts
+        'rewrite' => ['slug' => 'free-now'], // URL personalizzato per i post / Custom URL slug for posts
     ]);
 
     // Registrazione della tassonomia personalizzata "home_types"

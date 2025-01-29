@@ -22,7 +22,7 @@
                             </li> 
                             <li class="nav-item">
                                 <!-- Link alla pagina "free now" con slug "/home/" / Link to the "free now" page with slug "/home/" -->            
-                                <a class="nav-link" href="<?php echo site_url('/home/'); ?>">Free now</a>
+                                <a class="nav-link" href="<?php echo site_url('/free-now/'); ?>">Free now</a>
                             </li>
                             <li class="nav-item">
                                 <!-- Link alla pagina "About" / Link to the "About" page -->           
