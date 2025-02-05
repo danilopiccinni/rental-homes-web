@@ -25,28 +25,39 @@ add_action('wp_enqueue_scripts', 'enqueue_font_awesome');
 // Funzione per la configurazione iniziale del tema
 // Function to set up the theme
 function rental_homes_setup() {
-    // Supporto per immagini in evidenza
-    // Enable support for featured images
+    // Abilita il supporto per immagini in evidenza nei post e nei custom post types
+    // Enable support for featured images in posts and custom post types
     add_theme_support('post-thumbnails');
 
     // Registrazione del Custom Post Type "Home"
     // Register the Custom Post Type "Home"
     register_post_type('home', [
-        'label' => 'Homes', // Etichetta visibile per l'utente / User-visible label
-        'public' => true, // Rende il post type pubblico / Makes the post type public
-        'supports' => ['title', 'editor', 'thumbnail'], // Elementi supportati / Supported elements
-        'has_archive' => true, // Abilita un archivio per i post / Enables an archive for posts
-        'rewrite' => ['slug' => 'free-now'], // URL personalizzato per i post / Custom URL slug for posts
+        'label' => 'Homes', // Nome visibile nella dashboard / Name visible in the dashboard
+        'public' => true, // Il post type è accessibile nel frontend e nel backend / The post type is accessible in the frontend and backend
+        'supports' => ['title', 'editor', 'thumbnail'], // Elementi supportati come titolo, contenuto e immagine in evidenza / Supported elements like title, content, and featured image
+        'has_archive' => true, // Abilita una pagina archivio per i post di questo tipo / Enables an archive page for this post type
+        'rewrite' => ['slug' => 'free-now'], // Slug personalizzato per gli URL dei post / Custom slug for post URLs
     ]);
 
     // Registrazione della tassonomia personalizzata "home_types"
     // Register the custom taxonomy "home_types"
     register_taxonomy('home_types', 'home', [
-        'label' => 'Home Types', // Etichetta per la tassonomia / Taxonomy label
-        'public' => true, // Rende la tassonomia pubblica / Makes the taxonomy public
-        'rewrite' => ['slug' => 'home-types'], // URL personalizzato per la tassonomia / Custom URL slug for the taxonomy
+        'label' => 'Home Types', // Nome della tassonomia / Taxonomy label
+        'public' => true, // Rende la tassonomia accessibile nel backend e nel frontend / Makes the taxonomy accessible in the backend and frontend
+        'hierarchical' => false, // NON GERARCHICO → Funziona come un tag (selezione multipla possibile, ma limitata nel codice) /  NOT HIERARCHICAL → Works like a tag (multiple selections possible, but limited in code)
+        'rewrite' => ['slug' => 'home-types'], // Slug personalizzato per gli URL della tassonomia / Custom slug for taxonomy URLs
+    ]);
+
+    // Registrazione della tassonomia personalizzata "home_category"
+    // Register the custom taxonomy "home_category"
+    register_taxonomy('home_category', 'home', [
+        'label' => 'Home Categories', // Nome della tassonomia / Taxonomy label
+        'public' => true, // Rende la tassonomia accessibile nel backend e nel frontend / Makes the taxonomy accessible in the backend and frontend
+        'hierarchical' => true, // GERARCHICO → Funziona come le categorie (selezione multipla possibile con struttura ad albero) / HIERARCHICAL → Works like categories (multiple selections possible with a tree structure)
+        'rewrite' => ['slug' => 'home-category'], // Slug personalizzato per gli URL della tassonomia / Custom slug for taxonomy URLs
     ]);
 }
+
 // Collegamento della funzione di configurazione al momento dell'inizializzazione
 // Hook the setup function to the initialization process
 add_action('init', 'rental_homes_setup');
@@ -66,6 +77,26 @@ function display_home_types() {
             // Escapa e mostra il nome della tipologia
             // Escape and display the type name
             echo '<li>' . esc_html($type->name) . '</li>';
+        }
+        echo '</ul>';
+    }
+}
+
+// Aggiunta della categoria alle pagine per poterla visualizzare nel frontend
+// Add category to pages so it can be displayed in the frontend
+function display_home_category() {
+    // Recupera le categorie assegnate al post corrente
+    // Get the categories assigned to the current post
+    $home_categories = wp_get_post_terms(get_the_ID(), 'home_category');
+
+    // Se ci sono categorie, le visualizza
+    // If there are categories, display them
+    if (!empty($home_categories) && !is_wp_error($home_categories)) {
+        echo '<ul class="home-categories">';
+        foreach ($home_categories as $category) {
+            // Escapa e mostra il nome della categoria
+            // Escape and display the category name
+            echo '<li>' . esc_html($category->name) . '</li>';
         }
         echo '</ul>';
     }
