@@ -1,5 +1,92 @@
 <?php
 
+
+function ajax_search() {
+
+    // Verifica se il parametro 'search' è stato inviato / Check if the 'search' parameter was sent
+    if (!isset($_POST['search']) || empty($_POST['search'])) {
+        wp_send_json_error("No search term provided."); // Restituisce un errore se il termine di ricerca è vuoto / Return an error if the search term is empty
+        wp_die(); // Termina l'esecuzione dello script / Stop script execution
+    }
+
+    $search_term = sanitize_text_field($_POST['search']); // Sanifica il termine di ricerca / Sanitize the search term
+
+    $args = [
+        'post_type' => 'home', // Cerca solo nei post di tipo 'home' / Search only in 'home' post type
+        'posts_per_page' => -1, // Recupera tutti i risultati disponibili / Retrieve all available results
+        'meta_query' => [
+            [
+                'key'   => 'availability', // Controlla il campo 'availability' / Check the 'availability' field
+                'value' => 1, // Deve essere uguale a 1 (disponibile) / Must be 1 (available)
+                'compare' => '=' // Confronta il valore esattamente con 1 / Compare exactly with 1
+            ]
+        ],
+        's' => $search_term // Cerca il termine nel titolo e nella descrizione / Search in title and description
+    ];
+
+    $query = new WP_Query($args); // Esegue la query con i parametri sopra / Execute the query with the above parameters
+
+    if ($query->have_posts()) : 
+        while ($query->have_posts()) : $query->the_post();
+
+            generate_small_home_card(); // Genera la card per ogni casa trovata / Generate a card for each found home
+
+        endwhile;
+    else :
+        echo '<p class="text-center">No results found.</p>'; // Messaggio se nessuna casa è trovata / Message if no home is found
+    endif;
+
+    wp_die(); // Termina l'esecuzione dello script / Stop script execution
+}
+
+// Registra l'azione AJAX per utenti loggati e non loggati / Register AJAX action for logged-in and non-logged-in users
+add_action('wp_ajax_ajax_search', 'ajax_search'); 
+add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
+
+
+// Funzione per generare una card per ogni casa trovata / Function to generate a card for each found home
+function generate_small_home_card() {
+    
+    // Recupera i metadati della casa / Retrieve home metadata
+    $price = get_post_meta(get_the_ID(), 'price', true); // Prezzo / Price
+    $location = get_post_meta(get_the_ID(), 'location', true); // Posizione / Location
+    $image = get_field('image'); // Immagine della casa / Home image
+
+    ?>
+
+    <div class="col">
+        <div class="card h-100">
+            <?php if ($image) : ?>
+                <!-- Mostra l'immagine della casa se disponibile / Show home image if available -->
+                <img style="width: 100%; height: 200px; object-fit: cover;" src="<?php echo esc_url($image); ?>" class="card-img-top" alt="Home Image">
+            <?php else : ?>
+                <!-- Se non c'è un'immagine, usa un placeholder / If no image, use a placeholder -->
+                <img style="width: 100%; height: 200px; object-fit: cover;" src="https://via.placeholder.com/600x400" class="card-img-top" alt="Placeholder Image">
+            <?php endif; ?>
+
+            <div class="card-body">
+                <h5 class="card-title">
+                    <!-- Titolo della casa con link al dettaglio / Home title with link to details -->
+                    <a href="<?php the_permalink(); ?>" class="text-decoration-none text-dark">
+                        <?php the_title(); ?>
+                    </a>
+                </h5>
+                <p class="card-text"><strong>Price:</strong> <?php echo esc_html($price); ?> USD</p> <!-- Mostra il prezzo / Show price -->
+                <p class="card-text"><strong>Location:</strong> <?php echo esc_html($location); ?></p> <!-- Mostra la posizione / Show location -->
+            </div>
+
+            <div class="card-footer text-center">
+                <!-- Pulsante per visualizzare i dettagli della casa / Button to view home details -->
+                <a href="<?php the_permalink(); ?>" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+    </div>
+
+    <?php
+}
+
+
+
 // Bootstrap
 function add_bootstrap_to_theme() {
     // Bootstrap CSS
@@ -56,6 +143,7 @@ function rental_homes_setup() {
         'hierarchical' => true, // GERARCHICO → Funziona come le categorie (selezione multipla possibile con struttura ad albero) / HIERARCHICAL → Works like categories (multiple selections possible with a tree structure)
         'rewrite' => ['slug' => 'home-category'], // Slug personalizzato per gli URL della tassonomia / Custom slug for taxonomy URLs
     ]);
+
 }
 
 // Collegamento della funzione di configurazione al momento dell'inizializzazione
