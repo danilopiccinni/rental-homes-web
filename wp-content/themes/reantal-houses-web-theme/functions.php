@@ -1,46 +1,75 @@
 <?php
 
-
 function ajax_search() {
-
-    // Verifica se il parametro 'search' è stato inviato / Check if the 'search' parameter was sent
-    if (!isset($_POST['search']) || empty($_POST['search'])) {
-        wp_send_json_error("No search term provided."); // Restituisce un errore se il termine di ricerca è vuoto / Return an error if the search term is empty
-        wp_die(); // Termina l'esecuzione dello script / Stop script execution
-    }
-
-    $search_term = sanitize_text_field($_POST['search']); // Sanifica il termine di ricerca / Sanitize the search term
-
+    // Imposta i parametri di ricerca di base
+    // Set the basic search parameters
     $args = [
-        'post_type' => 'home', // Cerca solo nei post di tipo 'home' / Search only in 'home' post type
-        'posts_per_page' => -1, // Recupera tutti i risultati disponibili / Retrieve all available results
+        'post_type' => 'home',
+        'posts_per_page' => -1,
         'meta_query' => [
             [
-                'key'   => 'availability', // Controlla il campo 'availability' / Check the 'availability' field
-                'value' => 1, // Deve essere uguale a 1 (disponibile) / Must be 1 (available)
-                'compare' => '=' // Confronta il valore esattamente con 1 / Compare exactly with 1
+                'key'   => 'availability', // Mostra solo case disponibili
+                // Show only available homes
+                'value' => 1,
+                'compare' => '='
             ]
-        ],
-        's' => $search_term // Cerca il termine nel titolo e nella descrizione / Search in title and description
+        ]
     ];
 
-    $query = new WP_Query($args); // Esegue la query con i parametri sopra / Execute the query with the above parameters
+    // Controlla se è stato inviato un termine di ricerca
+    // Check if a search term has been sent
+    if (!empty($_POST['search'])) {
+        $args['s'] = sanitize_text_field($_POST['search']);
+    }
 
-    if ($query->have_posts()) : 
+    // Controlla se sono stati inviati altri filtri (esempio: prezzo minimo e massimo)
+    // Check if other filters have been sent (e.g., minimum and maximum price)
+    if (!empty($_POST['price_min'])) {
+        $args['meta_query'][] = [
+            'key'     => 'price',
+            // Chiave per il prezzo
+            // Key for the price
+            'value'   => sanitize_text_field($_POST['price_min']),
+            'type'    => 'NUMERIC',
+            'compare' => '>='
+        ];
+    }
+
+    if (!empty($_POST['price_max'])) {
+        $args['meta_query'][] = [
+            'key'     => 'price',
+            // Chiave per il prezzo
+            // Key for the price
+            'value'   => sanitize_text_field($_POST['price_max']),
+            'type'    => 'NUMERIC',
+            'compare' => '<='
+        ];
+    }
+
+    // Esegui la query
+    // Execute the query
+    $query = new WP_Query($args);
+
+    if ($query->have_posts()) :
         while ($query->have_posts()) : $query->the_post();
-
-            generate_small_home_card(); // Genera la card per ogni casa trovata / Generate a card for each found home
-
+            // Genera la scheda della casa in formato ridotto
+            // Generate the small home card
+            generate_small_home_card();
         endwhile;
     else :
-        echo '<p class="text-center">No results found.</p>'; // Messaggio se nessuna casa è trovata / Message if no home is found
+        // Messaggio quando non ci sono risultati
+        // Message when no results are found
+        echo '<p class="text-center">No results found.</p>';
     endif;
 
-    wp_die(); // Termina l'esecuzione dello script / Stop script execution
+    // Termina l'esecuzione della richiesta AJAX
+    // End the AJAX request execution
+    wp_die();
 }
 
-// Registra l'azione AJAX per utenti loggati e non loggati / Register AJAX action for logged-in and non-logged-in users
-add_action('wp_ajax_ajax_search', 'ajax_search'); 
+// Collegamento della funzione ajax_search agli hook di WordPress
+// Hook the ajax_search function to WordPress actions
+add_action('wp_ajax_ajax_search', 'ajax_search');
 add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
 
 
@@ -203,17 +232,20 @@ function rental_homes_menus() {
 // Hook the menu setup function to the theme setup event
 add_action('after_setup_theme', 'rental_homes_menus');
 
-// Funzione per registrare e caricare gli script e gli stili
-// Function to register and load scripts and styles
 function rental_homes_assets() {
-    // Carica il foglio di stile
-    // Load the stylesheet
+    // Carica il foglio di stile principale
+    // Enqueue the main stylesheet
     wp_enqueue_style('rental_homes_style', get_stylesheet_uri());
 
-    // Carica gli script JS (ad esempio, per il menu mobile)
-    // Load the JS scripts (e.g., for the mobile menu)
-    wp_enqueue_script('rental_homes_script', get_template_directory_uri() . '/js/main.js', [], false, true);
+    // Carica il file JS
+    // Enqueue the JS file
+    wp_enqueue_script('rental_homes_script', get_template_directory_uri() . '/js/main.js', ['jquery'], false, true);
+
+    // Passa ajaxurl a JS per WordPress AJAX
+    // Localize ajaxurl for WordPress AJAX calls
+    wp_localize_script('rental_homes_script', 'ajaxurl', admin_url('admin-ajax.php'));
 }
+
 // Collegamento della funzione di registrazione degli asset all'evento degli script
 // Hook the asset registration function to the scripts event
 add_action('wp_enqueue_scripts', 'rental_homes_assets');
