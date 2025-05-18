@@ -12,13 +12,15 @@
 
 namespace RankMath\Rest;
 
-use RankMath\Helpers\Str;
 use RankMath\Helper;
+use RankMath\Helpers\Str;
+use RankMath\Helpers\Url;
 use RankMath\Redirections\Metabox;
 use RankMath\Rest\Rest_Helper;
 use RankMath\Rest\Sanitize;
 use RankMath\Traits\Meta;
 use RankMath\Schema\DB;
+use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -50,6 +52,7 @@ class Shared extends WP_REST_Controller {
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => [ $this, 'update_redirection' ],
+				'args'                => $this->get_update_redirection_args(),
 				'permission_callback' => [ '\\RankMath\\Rest\\Rest_Helper', 'get_redirection_permissions_check' ],
 			]
 		);
@@ -227,13 +230,70 @@ class Shared extends WP_REST_Controller {
 	/**
 	 * Allow only rank math meta keys
 	 *
-	 * @param bool   $protected Whether the key is considered protected.
-	 * @param string $meta_key  Meta key.
+	 * @param bool   $is_protected Whether the key is considered protected.
+	 * @param string $meta_key     Meta key.
 	 *
 	 * @return bool
 	 */
-	public function only_this_plugin( $protected, $meta_key ) {
+	public function only_this_plugin( $is_protected, $meta_key ) {
 		return Str::starts_with( 'rank_math_', $meta_key );
+	}
+
+	/**
+	 * Get update redirection endpoint arguments.
+	 *
+	 * @return array
+	 */
+	private function get_update_redirection_args() {
+		return [
+			'objectID'        => [
+				'type'              => 'integer',
+				'required'          => true,
+				'description'       => esc_html__( 'Object unique id', 'rank-math' ),
+				'validate_callback' => [ '\\RankMath\\Rest\\Rest_Helper', 'is_param_empty' ],
+			],
+			'objectType'      => [
+				'type'              => 'string',
+				'default'           => 'post',
+				'required'          => true,
+				'description'       => esc_html__( 'Object Type i.e. post, term, user', 'rank-math' ),
+				'sanitize_callback' => 'rest_sanitize_request_arg',
+				'validate_callback' => [ '\\RankMath\\Rest\\Rest_Helper', 'is_valid_string' ],
+			],
+			'hasRedirect'     => [
+				'type'        => 'boolean',
+				'required'    => true,
+				'description' => esc_html__( 'Whether the object has a redirect or not', 'rank-math' ),
+			],
+			'redirectionID'   => [
+				'type'        => 'string',
+				'required'    => false,
+				'description' => esc_html__( 'Redirection ID', 'rank-math' ),
+			],
+			'redirectionUrl'  => [
+				'type'              => 'string',
+				'required'          => false,
+				'description'       => esc_html__( 'Redirection URL', 'rank-math' ),
+				'sanitize_callback' => 'rest_sanitize_request_arg',
+				'validate_callback' => function ( $param, $request ) {
+					$redirection_type = $request->get_param( 'redirectionType' );
+					if ( in_array( $param, [ '301', '302', '307' ], true ) ) {
+						return Url::is_url( $param );
+					}
+
+					return true;
+				},
+			],
+			'redirectionType' => [
+				'type'              => 'string',
+				'default'           => '301',
+				'required'          => true,
+				'description'       => esc_html__( 'Redirection Type', 'rank-math' ),
+				'enum'              => [ '301', '302', '307', '410', '451' ],
+				'sanitize_callback' => 'rest_sanitize_request_arg',
+				'validate_callback' => [ '\\RankMath\\Rest\\Rest_Helper', 'is_valid_string' ],
+			],
+		];
 	}
 
 	/**
@@ -253,7 +313,7 @@ class Shared extends WP_REST_Controller {
 				'type'              => 'integer',
 				'required'          => true,
 				'description'       => esc_html__( 'Object unique id', 'rank-math' ),
-				'validate_callback' => function( $param ) {
+				'validate_callback' => function ( $param ) {
 					if ( empty( $param ) && 0 !== $param ) {
 						return new WP_Error(
 							'param_value_empty',

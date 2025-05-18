@@ -17,6 +17,7 @@ use RankMath\Traits\Hooker;
 use RankMath\Google\Console;
 use RankMath\Google\Analytics;
 use RankMath\Analytics\Url_Inspection;
+use RankMath\Admin\Admin_Helper;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -65,7 +66,7 @@ class Assets implements Runner {
 
 		// Scripts.
 		wp_register_script( self::PREFIX . 'common', $js . 'common.js', [ 'jquery', 'wp-i18n', 'lodash' ], rank_math()->version, true );
-		wp_register_script( self::PREFIX . 'dashboard', $js . 'dashboard.js', [ 'jquery', 'clipboard', 'lodash', 'wp-components', 'wp-element' ], rank_math()->version, true );
+		wp_register_script( self::PREFIX . 'dashboard', $js . 'dashboard.js', [ 'jquery', 'clipboard', 'lodash', 'wp-components', 'wp-element', 'rank-math-components' ], rank_math()->version, true );
 		wp_register_script( self::PREFIX . 'components', $js . 'components.js', [ 'lodash', 'wp-components', 'wp-element', 'wp-api-fetch' ], rank_math()->version, true );
 
 		// Select2.
@@ -101,7 +102,7 @@ class Assets implements Runner {
 		}
 
 		if ( ! wp_script_is( 'lodash', 'registered' ) ) {
-			wp_register_script( 'lodash', rank_math()->plugin_url() . 'assets/vendor/lodash.js', [], rank_math()->version );
+			wp_register_script( 'lodash', rank_math()->plugin_url() . 'assets/vendor/lodash.js', [], rank_math()->version, [] );
 			wp_add_inline_script( 'lodash', 'window.lodash = _.noConflict();' );
 		}
 
@@ -145,7 +146,6 @@ class Assets implements Runner {
 		 * Allow other plugins to register/deregister admin styles or scripts after plugin assets.
 		 */
 		$this->do_action( 'admin/register_scripts' );
-
 	}
 
 	/**

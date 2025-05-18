@@ -27,7 +27,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class Admin implements Runner {
 
-	use Hooker, Ajax;
+	use Hooker;
+	use Ajax;
 
 	/**
 	 * Register hooks.
@@ -35,6 +36,7 @@ class Admin implements Runner {
 	public function hooks() {
 		$this->action( 'init', 'flush', 999 );
 		$this->filter( 'user_contactmethods', 'update_user_contactmethods' );
+		$this->action( 'profile_update', 'profile_update', 10, 3 );
 		$this->action( 'admin_footer', 'convert_additional_profile_url_to_textarea' );
 		$this->action( 'save_post', 'canonical_check_notice' );
 		$this->action( 'cmb2_save_options-page_fields', 'update_is_configured_value', 10, 2 );
@@ -47,6 +49,37 @@ class Admin implements Runner {
 		$this->ajax( 'is_keyword_new', 'is_keyword_new' );
 		$this->ajax( 'save_checklist_layout', 'save_checklist_layout' );
 		$this->ajax( 'deactivate_plugins', 'deactivate_plugins' );
+	}
+
+	/**
+	 * Update user profile.
+	 *
+	 * @param int   $user_id      The user ID.
+	 * @param array $old_user_data Old user data.
+	 * @param array $userdata      User data.
+	 */
+	public function profile_update( $user_id, $old_user_data, $userdata ) {
+		if ( ! current_user_can( 'edit_user', $user_id ) ) {
+			return false;
+		}
+
+		$nonce = Param::post( '_wpnonce', '', FILTER_SANITIZE_SPECIAL_CHARS );
+		if ( ! wp_verify_nonce( $nonce, 'update-user_' . $user_id ) ) {
+			return false;
+		}
+
+		$twitter                 = Param::post( 'twitter', '', FILTER_SANITIZE_URL );
+		$facebook                = Param::post( 'facebook', '', FILTER_SANITIZE_URL );
+		$additional_profile_urls = Param::post( 'additional_profile_urls', '' );
+
+		if ( $additional_profile_urls ) {
+			$additional_profile_urls = array_map( 'sanitize_url', explode( PHP_EOL, $additional_profile_urls ) );
+			$additional_profile_urls = implode( ' ', $additional_profile_urls );
+		}
+
+		update_user_meta( $user_id, 'twitter', $twitter );
+		update_user_meta( $user_id, 'facebook', $facebook );
+		update_user_meta( $user_id, 'additional_profile_urls', $additional_profile_urls );
 	}
 
 	/**
@@ -82,10 +115,12 @@ class Admin implements Runner {
 
 	/**
 	 * Display admin header.
+	 *
+	 * @param bool $show_breadcrumbs Determines whether to show breadcrumbs or not.
 	 */
-	public function display_admin_header() {
+	public function display_admin_header( $show_breadcrumbs = true ) {
 		$nav_tabs = new Admin_Header();
-		$nav_tabs->display();
+		$nav_tabs->display( $show_breadcrumbs );
 	}
 
 	/**
@@ -113,11 +148,11 @@ class Admin implements Runner {
 		$post_type  = get_post_type( $post_id );
 		$is_allowed = in_array( $post_type, Helper::get_allowed_post_types(), true );
 
-		if ( ! $is_allowed || Helper::is_autosave() || Helper::is_ajax() || isset( $_REQUEST['bulk_edit'] ) ) {
+		if ( ! $is_allowed || Helper::is_autosave() || Helper::is_ajax() || isset( $_REQUEST['bulk_edit'] ) ) { // phpcs:ignore
 			return $post_id;
 		}
 
-		if ( ! empty( $_POST['rank_math_canonical_url'] ) && false === Param::post( 'rank_math_canonical_url', false, FILTER_VALIDATE_URL ) ) {
+		if ( ! empty( $_POST['rank_math_canonical_url'] ) && false === Param::post( 'rank_math_canonical_url', false, FILTER_VALIDATE_URL ) ) { // phpcs:ignore
 			$message = esc_html__( 'The canonical URL you entered does not seem to be a valid URL. Please double check it in the SEO meta box &raquo; Advanced tab.', 'rank-math' );
 			Helper::add_notification( $message, [ 'type' => 'error' ] );
 		}
@@ -161,7 +196,7 @@ class Admin implements Runner {
 		}
 
 		global $wpdb;
-		$pages = $wpdb->get_results(
+		$pages = $wpdb->get_results( // phpcs:ignore
 			$wpdb->prepare(
 				"SELECT ID, post_title FROM {$wpdb->prefix}posts WHERE post_type = 'page' AND post_status = 'publish' AND post_title LIKE %s",
 				"%{$wpdb->esc_like( $term )}%"
@@ -385,9 +420,9 @@ class Admin implements Runner {
 	 * We first do the same check as what ActionScheduler_AdminView->check_pastdue_actions() does,
 	 * but then we also count how many of those past-due actions are ours.
 	 *
-	 * @param null $null Null value.
+	 * @param null $value Null value.
 	 */
-	public function as_exclude_pastdue_actions( $null ) {
+	public function as_exclude_pastdue_actions( $value ) {
 		$query_args = [
 			'date'     => as_get_datetime_object( time() - DAY_IN_SECONDS ),
 			'status'   => \ActionScheduler_Store::STATUS_PENDING,

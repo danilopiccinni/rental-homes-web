@@ -67,7 +67,7 @@ if ( ! isset( $type ) ) {
 		</div>
 		<div class="akismet-alert-button-wrapper">
 			<a href="https://akismet.com/pricing/?flow=upgrade&amp;utm_source=akismet_plugin&amp;utm_campaign=commercial_notice&amp;utm_medium=banner" class="akismet-alert-button akismet-button">
-			<?php esc_html_e( 'Upgrade plan' ); ?>
+			<?php esc_html_e( 'Upgrade plan', 'akismet' ); ?>
 			</a>
 		</div>
 	</div>
@@ -217,7 +217,7 @@ if ( ! isset( $type ) ) {
 	<p><?php esc_html_e( 'The key you entered is invalid. Please double-check it.', 'akismet' ); ?></p>
 </div>
 
-<?php elseif ( $type === 'existing-key-invalid' ) : ?>
+<?php elseif ( $type === Akismet_Admin::NOTICE_EXISTING_KEY_INVALID ) : ?>
 <div class="akismet-alert is-bad">
 	<h3 class="akismet-alert__heading"><?php echo esc_html( __( 'Your API key is no longer valid.', 'akismet' ) ); ?></h3>
 	<p>

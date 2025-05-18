@@ -9,7 +9,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Rank Math SEO
- * Version:           1.0.237
+ * Version:           1.0.244
  * Plugin URI:        https://rankmath.com/
  * Description:       Rank Math SEO is the Best WordPress SEO plugin with the features of many SEO and AI SEO tools in a single package to help multiply your SEO traffic.
  * Author:            Rank Math SEO
@@ -34,7 +34,7 @@ final class RankMath {
 	 *
 	 * @var string
 	 */
-	public $version = '1.0.237';
+	public $version = '1.0.244';
 
 	/**
 	 * Rank Math database version.
@@ -313,7 +313,6 @@ final class RankMath {
 		// Make sure it is loaded before setup_modules and load_modules.
 		add_action( 'after_setup_theme', [ $this, 'localization_setup' ], 1 );
 		add_action( 'init', [ $this, 'pass_admin_content' ] );
-		add_filter( 'cron_schedules', [ $this, 'cron_schedules' ] );
 
 		// Add plugin action links.
 		add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 2 );
@@ -384,7 +383,7 @@ final class RankMath {
 	 */
 	private function load_3rd_party() {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			require_once ABSPATH . 'wp-admin/includes/plugin.php'; // @phpstan-ignore-line
 		}
 
 		// Elementor.
@@ -525,21 +524,6 @@ final class RankMath {
 			$this->container['json']->add( 'modules', \RankMath\Helper::get_active_modules(), 'rankMath' );
 		}
 	}
-
-	/**
-	 * Add cron schedules.
-	 *
-	 * @param  array $schedules List of schedules for cron jobs.
-	 * @return array
-	 */
-	public function cron_schedules( $schedules ) {
-		$schedules['weekly'] = [
-			'interval' => DAY_IN_SECONDS * 7,
-			'display'  => esc_html__( 'Once Weekly', 'rank-math' ),
-		];
-
-		return $schedules;
-	}
 }
 
 /**
@@ -547,7 +531,7 @@ final class RankMath {
  *
  * @return RankMath
  */
-function rank_math() {
+function rank_math() { // phpcs:ignore -- This is a main function used to initialize the plugin.
 	return RankMath::get();
 }
 
