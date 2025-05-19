@@ -53,34 +53,48 @@ function ajax_search() {
 add_action('wp_ajax_ajax_search', 'ajax_search');
 add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
 
+
+
 function generate_small_home_card() {
-    $price = get_post_meta(get_the_ID(), 'price', true);
+	$price = get_post_meta(get_the_ID(), 'price', true);
     $location = get_post_meta(get_the_ID(), 'location', true);
     $image = get_field('image'); ?>
 
-    <div class="col">
-        <div class="card h-100">
-            <?php if ($image) : ?>
-                <img style="width: 100%; height: 200px; object-fit: cover;" src="<?php echo esc_url($image); ?>" class="card-img-top" alt="Home Image">
+<div class="col">
+	<div class="card h-100">
+		<?php if ($image) : ?>
+			<img style="width: 100%; height: 200px; object-fit: cover;" src="<?php echo esc_url($image); ?>" class="card-img-top" alt="Home Image">
             <?php else : ?>
                 <img style="width: 100%; height: 200px; object-fit: cover;" src="https://via.placeholder.com/600x400" class="card-img-top" alt="Placeholder Image">
-            <?php endif; ?>
-            <div class="card-body">
-                <h5 class="card-title">
-                    <a href="<?php the_permalink(); ?>" class="text-decoration-none text-dark">
-                        <?php the_title(); ?>
-                    </a>
-                </h5>
-                <p class="card-text"><strong>Price:</strong> <?php echo esc_html($price); ?> USD</p>
-                <p class="card-text"><strong>Location:</strong> <?php echo esc_html($location); ?></p>
-            </div>
-            <div class="card-footer text-center">
-                <a href="<?php the_permalink(); ?>" class="btn btn-primary">View Details</a>
-            </div>
-        </div>
-    </div>
-<?php
+				<?php endif; ?>
+				<div class="card-body">
+					<h5 class="card-title">
+						<a href="<?php the_permalink(); ?>" class="text-decoration-none text-dark">
+							<?php the_title(); ?>
+						</a>
+					</h5>
+					<p class="card-text"><strong>Price:</strong> <?php echo esc_html($price); ?> USD</p>
+					<p class="card-text"><strong>Location:</strong> <?php echo esc_html($location); ?></p>
+				</div>
+				<div class="card-footer text-center">
+					<a href="<?php the_permalink(); ?>" class="btn btn-primary">View Details</a>
+				</div>
+			</div>
+		</div>
+		<?php
 }
+// ===========================
+//  AJAX SEARCH
+// ===========================
+
+
+
+
+
+
+
+
+
 
 // ===========================
 //  BOOTSTRAP & FONT AWESOME
@@ -95,6 +109,17 @@ function enqueue_font_awesome() {
     wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', [], '6.5.1');
 }
 add_action('wp_enqueue_scripts', 'enqueue_font_awesome');
+// ===========================
+//  BOOTSTRAP & FONT AWESOME
+// ===========================
+
+
+
+
+
+
+
+
 
 // ===========================
 //  ASSET FRONTEND
@@ -105,6 +130,57 @@ function rental_homes_assets() {
     wp_localize_script('rental_homes_script', 'ajaxurl', admin_url('admin-ajax.php'));
 }
 add_action('wp_enqueue_scripts', 'rental_homes_assets');
+// ===========================
+//  ASSET FRONTEND
+// ===========================
+
+
+
+
+
+
+
+
+// ===========================
+//  MENU SETUP
+// ===========================
+function rental_homes_menus() {
+    register_nav_menus([
+        'primary' => __('Primary Menu', 'rental_homes')
+    ]);
+}
+add_action('after_setup_theme', 'rental_homes_menus');
+
+
+
+
+
+
+// ===========================
+//  DISPLAY TAXONOMIES
+// ===========================
+function display_home_types() {
+    $home_types = wp_get_post_terms(get_the_ID(), 'home_types');
+    if (!empty($home_types) && !is_wp_error($home_types)) {
+        echo '<ul class="home-types">';
+        foreach ($home_types as $type) {
+            echo '<li>' . esc_html($type->name) . '</li>';
+        }
+        echo '</ul>';
+    }
+}
+
+function display_home_category() {
+    $home_categories = wp_get_post_terms(get_the_ID(), 'home_category');
+    if (!empty($home_categories) && !is_wp_error($home_categories)) {
+        echo '<ul class="home-categories">';
+        foreach ($home_categories as $category) {
+            echo '<li>' . esc_html($category->name) . '</li>';
+        }
+        echo '</ul>';
+    }
+}
+
 
 // ===========================
 //  THEME SETUP
@@ -135,41 +211,11 @@ function rental_homes_setup() {
     ]);
 }
 add_action('init', 'rental_homes_setup');
+// ===========================
+//  THEME SETUP
+// ===========================
 
-// ===========================
-//  MENU SETUP
-// ===========================
-function rental_homes_menus() {
-    register_nav_menus([
-        'primary' => __('Primary Menu', 'rental_homes')
-    ]);
-}
-add_action('after_setup_theme', 'rental_homes_menus');
 
-// ===========================
-//  DISPLAY TAXONOMIES
-// ===========================
-function display_home_types() {
-    $home_types = wp_get_post_terms(get_the_ID(), 'home_types');
-    if (!empty($home_types) && !is_wp_error($home_types)) {
-        echo '<ul class="home-types">';
-        foreach ($home_types as $type) {
-            echo '<li>' . esc_html($type->name) . '</li>';
-        }
-        echo '</ul>';
-    }
-}
-
-function display_home_category() {
-    $home_categories = wp_get_post_terms(get_the_ID(), 'home_category');
-    if (!empty($home_categories) && !is_wp_error($home_categories)) {
-        echo '<ul class="home-categories">';
-        foreach ($home_categories as $category) {
-            echo '<li>' . esc_html($category->name) . '</li>';
-        }
-        echo '</ul>';
-    }
-}
 
 // ===========================
 //  TGM PLUGIN ACTIVATION
@@ -198,58 +244,30 @@ function rental_homes_register_required_plugins() {
     tgmpa($plugins, $config);
 }
 
+
+
+
+
+
+
+
+
+
+
 // ===========================
 //  REGISTRAZIONE CAMPI ACF
 // ===========================
-add_action('acf/init', 'rental_homes_register_acf_fields');
-
-function rental_homes_register_acf_fields() {
-    if (function_exists('acf_add_local_field_group')) {
-        acf_add_local_field_group([
-            'key' => 'group_home_fields',
-            'title' => 'Home Fields',
-            'fields' => [
-                [
-                    'key' => 'field_price',
-                    'label' => 'Price',
-                    'name' => 'price',
-                    'type' => 'number',
-                ],
-                [
-                    'key' => 'field_location',
-                    'label' => 'Location',
-                    'name' => 'location',
-                    'type' => 'text',
-                ],
-                [
-                    'key' => 'field_image',
-                    'label' => 'Image',
-                    'name' => 'image',
-                    'type' => 'image',
-                    'return_format' => 'url',
-                ],
-                [
-                    'key' => 'field_availability',
-                    'label' => 'Availability',
-                    'name' => 'availability',
-                    'type' => 'true_false',
-                    'ui' => 1,
-                ],
-            ],
-            'location' => [[
-                [
-                    'param' => 'post_type',
-                    'operator' => '==',
-                    'value' => 'home',
-                ]
-            ]],
-        ]);
-    }
-}
 
 
-
-//importanzione automatica dei gruppi di campo per le case 'home details'
+// ========================================================
+//  IMPORTAZIONE AUTOMATICA GRUPPI DI CAMPI ACF: HOME DETAILS
+//  AUTO REGISTER ACF FIELD GROUPS FOR 'HOME DETAILS'
+// --------------------------------------------------------
+//  Carica automaticamente il gruppo di campi predefinito
+//  per i post di tipo "home" utilizzando il plugin ACF.
+//  Automatically loads the predefined field group for
+//  "home" post type using the ACF plugin.
+// ========================================================
 add_action( 'acf/include_fields', function() {
 	if ( ! function_exists( 'acf_add_local_field_group' ) ) {
 		return;
@@ -1588,9 +1606,5 @@ add_action( 'acf/include_fields', function() {
 ) );
 } );
 
-
-
-
-
-
 ?>
+
