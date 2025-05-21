@@ -1,149 +1,149 @@
+
 <?php
+/**
+
+========================================================
+
+SINGLE HOME TEMPLATE
+
+TEMPLATE PER SINGOLA CASA DISPONIBILE
+
+Mostra i dettagli dell'immobile e include il modulo
+
+di prenotazione frontend.
+
+Displays the property details and includes the booking
+
+form for the frontend.
+
+========================================================
+*/
 get_header(); // Include l'header del tema / Include the theme's header
 ?>
 
 <main class="container my-5">
 
+    <!-- Link di ritorno -->
     <div class="mb-4">
-        <!-- Link per tornare alla pagina principale delle case disponibili -->
-        <!-- Link to go back to the main available homes page -->
-        <a href="<?php echo site_url('/home/'); ?>">
-            <i class="fa-solid fa-arrow-left"></i> Torna alle case disponibili
+        <a href="<?php echo site_url('/home/'); ?>" class="text-decoration-none">
+            <i class="fa-solid fa-arrow-left me-2"></i> Torna alle case disponibili
         </a>
     </div>
 
     <div class="row justify-content-center">
-        <?php
-        // Controlla se ci sono post disponibili
-        // Check if there are posts available
-        if (have_posts()) :
-            // Inizia il ciclo principale per iterare sui post
-            // Start the main loop to iterate through the posts
-            while (have_posts()) : the_post();
+        <?php if (have_posts()) : while (have_posts()) : the_post();
 
-                // Recupera i dati personalizzati del post corrente
-                // Retrieve custom data of the current post
-                $price = get_post_meta(get_the_ID(), 'price', true); // Prezzo della proprietà / Property price
-                $location = get_post_meta(get_the_ID(), 'location', true); // Posizione della proprietà / Property location
-                $size = get_post_meta(get_the_ID(), 'size', true); // Dimensione in metri quadrati / Size in square meters
-                $rooms = get_post_meta(get_the_ID(), 'rooms', true); // Numero di stanze disponibili / Number of available rooms
-                $services = get_field('services'); // Campo ACF "services" con i servizi disponibili / ACF field "services" containing available services
-                $image = get_field('image'); // Campo ACF per l'immagine personalizzata / ACF field for custom image
-            ?>
+            // Recupera i metadati della proprietà
+            $price    = get_post_meta(get_the_ID(), 'price', true);
+            $location = get_post_meta(get_the_ID(), 'location', true);
+            $size     = get_post_meta(get_the_ID(), 'size', true);
+            $rooms    = get_post_meta(get_the_ID(), 'rooms', true);
+            $services = get_field('services');
+            $image    = get_field('image');
+        ?>
 
-            <!-- INIZIO DELLA CARD / START OF THE CARD -->
-            <div class="card mb-3 p-0">
+        <!-- CARD DETTAGLI IMMOBILE -->
+        <div class="card mb-4 p-0 shadow">
 
-                <?php if ($image) : ?>
-                    <!-- Mostra l'immagine personalizzata se presente -->
-                    <!-- Show the custom image if available -->
-                    <img src="<?php echo esc_url($image); ?>" class="card-img-top" alt="Property Image">
-                <?php else : ?>
-                    <!-- Mostra un'immagine di placeholder se nessuna immagine è impostata -->
-                    <!-- Show a placeholder image if no custom image is set -->
-                    <img src="https://via.placeholder.com/600x400" class="img-fluid rounded-start" alt="Placeholder Image">
-                <?php endif; ?>
+            <!-- FORM DI PRENOTAZIONE -->
+            <div class="card-body border-bottom mb-3">
+                <?php get_template_part('booking-form'); ?>
+            </div>
 
-                <!-- Corpo della card contenente i dettagli della proprietà -->
-                <!-- Card body containing property details -->
-                <div class="card-body text-center">
-                    <!-- Titolo del post -->
-                    <!-- Post title -->
-                    <h5 class="card-title fs-1 mb-5 text"><?php the_title(); ?></h5>
+            <!-- MESSAGGI DI SUCCESSO/ERRORE -->
+            <?php if (isset($_GET['booking_status']) && $_GET['booking_status'] === 'success') : ?>
+                <div class="alert alert-success mx-3">
+                    Booking successful! We will contact you soon.
+                </div>
+            <?php elseif (isset($_GET['booking_status']) && $_GET['booking_status'] === 'error') : ?>
+                <div class="alert alert-danger mx-3">
+                    There was an error with your booking. Please try again.
+                </div>
+            <?php endif; ?>
 
-                    <!-- Sezione per mostrare il tipo di casa e la categoria -->
-                    <!-- Section to display home type and category -->
-                    <div class="d-flex gap-5 mb-5 wrap justify-content-center">
-                        <p>
-                            <?php display_home_types() ?>
-                        </p>
-                        <p>
-                            <?php display_home_category() ?>
-                        </p>
-                    </div>
+            <!-- IMMAGINE PRINCIPALE -->
+            <?php if ($image) : ?>
+                <img src="<?php echo esc_url($image); ?>" class="card-img-top" alt="Property Image">
+            <?php else : ?>
+                <img src="https://via.placeholder.com/600x400" class="card-img-top" alt="Placeholder Image">
+            <?php endif; ?>
 
-                    <!-- Sezione per mostrare i dettagli principali della proprietà -->
-                    <!-- Section to display main property details -->
-                    <div class="d-flex gap-5 mb-5 wrap justify-content-center">
-                        <p class="card-text fs-5"><strong>Price:</strong> <?php echo esc_html($price); ?> USD</p>
-                        <p class="card-text fs-5"><strong>Location:</strong> <?php echo esc_html($location); ?></p>
-                        <p class="card-text fs-5"><strong>Size:</strong> <?php echo esc_html($size); ?> m²</p>
-                        <p class="card-text fs-5"><strong>Rooms:</strong> <?php echo esc_html($rooms); ?></p>
-                    </div>
+            <!-- CONTENUTO DELLA CARD -->
+            <div class="card-body text-center">
 
-                    <!-- Controlla se ci sono servizi disponibili -->
-                    <!-- Check if services are available -->
-                    <?php
-                    $has_services = false;
+                <!-- Titolo -->
+                <h5 class="card-title fs-1 mb-4"><?php the_title(); ?></h5>
 
-                    // Verifica se almeno un servizio è disponibile
-                    // Check if at least one service is available
-                    if (!empty($services) && is_array($services)) {
-                        foreach ($services as $group_fields) {
-                            if (is_array($group_fields)) {
-                                foreach ($group_fields as $sub_field_value) {
-                                    if (!empty($sub_field_value)) {
-                                        $has_services = true; //Almeno un servizio è presente / At least one service is available
-                                        break 2; //Esce dai cicli appena trova un servizio valido  / Exit loops as soon as a valid service is found                                        
-                                    }
+                <!-- Tipo e categoria -->
+                <div class="d-flex flex-wrap justify-content-center gap-4 mb-4">
+                    <p><?php display_home_types(); ?></p>
+                    <p><?php display_home_category(); ?></p>
+                </div>
+
+                <!-- Dettagli principali -->
+                <div class="d-flex flex-wrap justify-content-center gap-4 mb-4">
+                    <p class="card-text fs-5"><strong>Price:</strong> <?php echo esc_html($price); ?> USD</p>
+                    <p class="card-text fs-5"><strong>Location:</strong> <?php echo esc_html($location); ?></p>
+                    <p class="card-text fs-5"><strong>Size:</strong> <?php echo esc_html($size); ?> m²</p>
+                    <p class="card-text fs-5"><strong>Rooms:</strong> <?php echo esc_html($rooms); ?></p>
+                </div>
+
+                <!-- Sezione servizi disponibili -->
+                <?php
+                $has_services = false;
+                if (!empty($services) && is_array($services)) {
+                    foreach ($services as $group_fields) {
+                        if (is_array($group_fields)) {
+                            foreach ($group_fields as $sub_field_value) {
+                                if (!empty($sub_field_value)) {
+                                    $has_services = true;
+                                    break 2;
                                 }
                             }
                         }
                     }
-                    ?>
+                }
+                ?>
 
-                    <?php if ($has_services) : ?>
-                        <p class="card-text fs-3 text"><strong>Available Services:</strong></p>
-
-                        <!-- Lista dei servizi disponibili -->
-                        <!-- List of available services -->
-                        <div class="d-flex gap-5 mb-5 wrap justify-content-center">
-                            <ul class="list-unstyled d-flex flex-wrap gap-3 text-start">
-                                <?php foreach ($services as $group_name => $group_fields) : ?>
-                                    <?php 
-                                    $has_active_fields = false;
-                                    foreach ($group_fields as $sub_field_value) {
-                                        if ($sub_field_value) {
-                                            $has_active_fields = true;
-                                            break;
-                                        }
+                <?php if ($has_services) : ?>
+                    <p class="card-text fs-3"><strong>Available Services:</strong></p>
+                    <div class="d-flex justify-content-center mb-4">
+                        <ul class="list-unstyled d-flex flex-wrap gap-4 text-start">
+                            <?php foreach ($services as $group_name => $group_fields) :
+                                $has_active_fields = false;
+                                foreach ($group_fields as $val) {
+                                    if ($val) {
+                                        $has_active_fields = true;
+                                        break;
                                     }
-                                    ?>
-                                    <?php if ($has_active_fields) : ?>
-                                        <li>
-                                            <strong><?php echo esc_html(ucwords(str_replace('_', ' ', $group_name))); ?>:</strong>
-                                            <ul class="list-unstyled ps-3 text-start">
-                                                <?php foreach ($group_fields as $sub_field_name => $sub_field_value) : ?>
-                                                    <?php if ($sub_field_value) : ?>
-                                                        <li>✔ <?php echo esc_html(ucwords(str_replace('_', ' ', $sub_field_name))); ?></li>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </ul>
-                                        </li>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
+                                }
+                                if ($has_active_fields) : ?>
+                                    <li>
+                                        <strong><?php echo esc_html(ucwords(str_replace('_', ' ', $group_name))); ?>:</strong>
+                                        <ul class="list-unstyled ps-3">
+                                            <?php foreach ($group_fields as $field_label => $value) :
+                                                if ($value) : ?>
+                                                    <li>✔ <?php echo esc_html(ucwords(str_replace('_', ' ', $field_label))); ?></li>
+                                                <?php endif;
+                                            endforeach; ?>
+                                        </ul>
+                                    </li>
+                                <?php endif;
+                            endforeach; ?>
+                        </ul>
+                    </div>
+                <?php else : ?>
+                    <p class="card-text"><strong>Available Services:</strong> No services available.</p>
+                <?php endif; ?>
 
-                    <?php else : ?>
-                        <!-- Messaggio se nessun servizio è disponibile -->
-                        <!-- Message if no services are available -->
-                        <p class="card-text"><strong>Available Services:</strong> No services available.</p>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <!-- FINE DELLA CARD / END OF THE CARD -->
+            </div> <!-- /card-body -->
+        </div> <!-- /card -->
 
-        <?php
-            endwhile; // Fine del ciclo principale
-            // End of the main loop
+        <?php endwhile;
         else :
-            // Messaggio se non ci sono proprietà disponibili
-            // Message if no properties are available
             echo '<p class="text-center">No properties found.</p>';
-        endif;
-        ?>
-    </div>
+        endif; ?>
+    </div> <!-- /row -->
 </main>
 
 <?php

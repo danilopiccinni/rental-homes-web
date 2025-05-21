@@ -7,13 +7,14 @@
 // ===========================
 //  INCLUDES (FILE ESTERNI)
 // ===========================
-require_once get_template_directory() . '/inc/theme-setup.php';                  // Theme support & menu
-require_once get_template_directory() . '/inc/ajax-search.php';                 // AJAX search handlers
-require_once get_template_directory() . '/inc/display-taxonomies.php';          // Taxonomy display helpers
-require_once get_template_directory() . '/inc/tgm-plugin-activation.php';       // Required plugins setup
-require_once get_template_directory() . '/inc/acf-home-details-group.php';      // ACF: Home Details field group
-
-
+require_once get_template_directory() . '/inc/theme-setup.php';                  // Theme support & menu / Supporto tema e menu
+require_once get_template_directory() . '/inc/ajax-search.php';                 // AJAX search handlers / Gestione ricerca AJAX
+require_once get_template_directory() . '/inc/display-taxonomies.php';          // Taxonomy display helpers / Visualizzazione tassonomie
+require_once get_template_directory() . '/inc/tgm-plugin-activation.php';       // Required plugins setup / Setup plugin richiesti
+require_once get_template_directory() . '/inc/acf-home-details-group.php';      // ACF: Home Details field group / Gruppo campi ACF per "home"
+require_once get_template_directory() . '/inc/booking-cpt.php';                 // Booking CPT registration / Registrazione Custom Post Type "booking"
+require_once get_template_directory() . '/inc/acf-booking-fields.php';          // ACF: Booking fields / Campi ACF per prenotazioni
+require_once get_template_directory() . '/inc/booking-handler.php';             // Booking form handler / Gestione invio form prenotazione
 // ===========================
 //  FRONTEND ASSETS
 // ===========================
