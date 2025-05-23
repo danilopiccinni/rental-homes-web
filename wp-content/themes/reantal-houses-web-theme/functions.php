@@ -44,7 +44,7 @@ add_action('wp_enqueue_scripts', 'rental_homes_enqueue_font_awesome');
  */
 function rental_homes_enqueue_assets() {
     wp_enqueue_style('rental-homes-style', get_stylesheet_uri());
-    wp_enqueue_script('rental-homes-script', get_template_directory_uri() . '/js/main.js', ['jquery'], false, true);
+    wp_enqueue_script('rental-homes-script', get_template_directory_uri() . '/assets/js/main.js', ['jquery'], false, true);
     wp_localize_script('rental-homes-script', 'ajaxurl', admin_url('admin-ajax.php'));
 }
 add_action('wp_enqueue_scripts', 'rental_homes_enqueue_assets');
