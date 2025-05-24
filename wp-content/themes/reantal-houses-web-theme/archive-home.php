@@ -1,6 +1,6 @@
 <?php
 get_template_part('template-parts/header');  // Includi l'header del tema WordPress / Include the WordPress theme header
-get_template_part('search'); // Includi il modulo di ricerca / Include the search module
+get_template_part('template-parts/component/search-form-homes'); // Includi il modulo di ricerca / Include the search module
 ?>
 
 <main class="container my-5">

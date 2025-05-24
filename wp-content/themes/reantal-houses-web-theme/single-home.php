@@ -47,7 +47,7 @@ get_template_part('template-parts/header');  // Includi l'header del tema WordPr
 
             <!-- FORM DI PRENOTAZIONE -->
             <div class="card-body border-bottom mb-3">
-                <?php get_template_part('booking-form'); ?>
+                <?php get_template_part('template-parts/component/booking-form-home'); ?>
             </div>
 
             <!-- MESSAGGI DI SUCCESSO/ERRORE -->
