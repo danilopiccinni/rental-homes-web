@@ -1,6 +1,5 @@
 <?php
-/* Template Name: Contact Page */
-get_header();
+get_template_part('template-parts/header');  // Includi l'header del tema WordPress / Include the WordPress theme header
 ?>
 
 <main>
@@ -9,5 +8,5 @@ get_header();
 </main>
 
 <?php
-get_footer();
+get_template_part('template-parts/footer'); // Includi il footer del tema WordPress / Include the WordPress theme footer
 ?>

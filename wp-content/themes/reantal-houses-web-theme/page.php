@@ -1,5 +1,19 @@
 <?php
-get_header();
+/**
+ * ============================================================
+ *  GENERIC PAGE TEMPLATE
+ *  TEMPLATE GENERICO PER PAGINE STATICHE
+ * ------------------------------------------------------------
+ *  Template di fallback per tutte le pagine statiche create
+ *  dal backend, se non viene specificato un template più
+ *  dettagliato (es. page-about.php, page-contact.php).
+ *
+ *  Fallback template for all static pages created from the
+ *  WordPress backend, if no more specific template is set
+ *  (e.g. page-about.php, page-contact.php).
+ * ============================================================
+ */
+get_template_part('template-parts/header');  // Includi l'header del tema WordPress / Include the WordPress theme header
 if (have_posts()) :
     while (have_posts()) : the_post();
         ?>
@@ -17,4 +31,4 @@ else :
     </main>
     <?php
 endif;
-get_footer();
+get_template_part('template-parts/footer'); // Includi il footer del tema WordPress / Include the WordPress theme footer

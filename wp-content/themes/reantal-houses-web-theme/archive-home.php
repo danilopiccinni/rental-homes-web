@@ -1,5 +1,5 @@
 <?php
-get_header(); // Includi l'header del tema WordPress / Include the WordPress theme header
+get_template_part('template-parts/header');  // Includi l'header del tema WordPress / Include the WordPress theme header
 get_template_part('search'); // Includi il modulo di ricerca / Include the search module
 ?>
 
@@ -18,5 +18,5 @@ get_template_part('search'); // Includi il modulo di ricerca / Include the searc
 </main>
 
 <?php 
-get_footer(); // Includi il footer del tema WordPress / Include the WordPress theme footer
+get_template_part('template-parts/footer'); // Includi il footer del tema WordPress / Include the WordPress theme footer
 ?>

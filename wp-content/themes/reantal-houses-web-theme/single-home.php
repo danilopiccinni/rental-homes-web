@@ -18,7 +18,7 @@ form for the frontend.
 
 ========================================================
 */
-get_header(); // Include l'header del tema / Include the theme's header
+get_template_part('template-parts/header');  // Includi l'header del tema WordPress / Include the WordPress theme header
 ?>
 
 <main class="container my-5">
@@ -147,5 +147,5 @@ get_header(); // Include l'header del tema / Include the theme's header
 </main>
 
 <?php
-get_footer(); // Include il footer del tema / Include the theme's footer
+get_template_part('template-parts/footer'); // Includi il footer del tema WordPress / Include the WordPress theme footer
 ?>
